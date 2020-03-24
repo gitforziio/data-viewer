@@ -30,6 +30,24 @@ function onImport() {
             };
         }
     }
+
+
+    // var event_classes = new Set();
+    // // let nodes = d3.selectAll(`span[data-evt_class]`).nodes();
+    // for (let zz of the_vue.Zs) {
+    //     for (let event of zz.event_list){
+    //         let vl = event.class;
+    //         event_classes.add(vl);
+    //     }
+    // }
+    // var event_classes_html = `<option>【不选】</option>`;
+    // for (let event_class in event_classes) {
+    //     event_classes_html+=`<option>${event_class}</option>`;
+    // }
+    // console.log(event_classes);
+    // console.log(event_classes_html);
+    // d3.select("#task-select").html(event_classes_html);
+
 }
 
 function mark(item) {
@@ -53,17 +71,46 @@ function mark(item) {
 }
 
 var the_vue = new Vue({
-    el: '#box-editing',
+    el: '#bodywrap',
     data: {
         Zs: [],
+        selected_class: "【None】",
+        selected_type: "【None】",
+    },
+    computed: {
+        event_classes: function(){
+            var event_classes = new Set();
+            event_classes.add("【None】");
+            for (let zz of this.Zs) {
+                for (let event of zz.event_list){
+                    let vl = event.class;
+                    event_classes.add(vl);
+                }
+            }
+            return event_classes;
+        },
+        event_types: function(){
+            var event_types = new Set();
+            event_types.add("【None】");
+            var len = this.selected_class.length;
+            for (let zz of this.Zs) {
+                for (let event of zz.event_list){
+                    let vl = event.event_type;
+                    if (vl.slice(0,len) == this.selected_class) {
+                        event_types.add(vl);
+                    }
+                }
+            }
+            return event_types;
+        },
     },
     methods: {
         toggle_btn: function(evt) {
         }
     },
-    created: function() {
-        console.log("`the_vue` created");
-    },
+    // created: function() {
+    //     console.log("`the_vue` created");
+    // },
 })
 
 
@@ -75,8 +122,8 @@ Vue.component('the_data', {
     template: `
         <div class="thing-item" :class="{hidden:Z.hidden}">
             <p>{{Z.order_id}}</p>
-            <div v-for="(event,i) in Z.event_list" class="thing-event" :class="{hidden:event.hidden}">
-                <p><span class="type" :data-evt_class="event.class" :data-type="event.event_type">{{event.event_type}}</span></p>
+            <div v-for="(event,j) in Z.event_list" class="thing-event" :class="{hidden:event.hidden}">
+                <p><span class="type" :data-evt_class="event.class" :data-type="event.event_type" :data-evt_id="j" :data-order_id="Z.order_id">{{event.event_type}}</span></p>
                 <p v-html="event.evt_html"></p>
             </div>
         </div>`,

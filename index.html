@@ -78,7 +78,7 @@
 
 <body>
 
-<div class="bodywrap">
+<div class="bodywrap" id="bodywrap">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="#">数据查看器</a><!-- 
@@ -146,35 +146,31 @@
         </div> -->
         <div class="row">
             <div class="col col-3 col-md-2">
-                <select class="custom-select custom-select-sm" name="task-select" id="task-select"><!-- 
-                    <option>类型</option>
-                    <option>评价</option>
-                    <option>立场</option>
-                    <option>强度</option>
-                    <option>情感</option> -->
+                <select class="custom-select custom-select-sm" name="task-select" id="task-select" v-model="selected_class">
+                    <option v-for="cls in event_classes">{{cls}}</option>
                 </select>
             </div>
             <div class="col col-3 col-md-2">
-                <select class="custom-select custom-select-sm" name="task-option" id="task-option"><!-- 
-                    <option>主观情感类构式</option>
-                    <option>缺省</option> -->
+                <select class="custom-select custom-select-sm" name="task-option" id="task-option" v-model="selected_type">
+                    <option v-for="typ in event_types">{{typ}}</option>
                 </select>
-            </div><!-- 
-            <div class="col col-3 col-md-2">
+            </div>
+            <!-- <div class="col col-3 col-md-2">
                 <input class="form-control form-control-sm" type="text" name="task-text" id="task-text">
             </div> -->
-            <div class="col col-3 col-md-2 col-lg-3">
-                <button type="button" name="task-do" id="task-do" class="btn btn-sm btn-info">执行</button>
-            </div>
-            <div class="col col-12 col-md-4 col-lg-3">
+            <!-- <div class="col col-3 col-md-2 col-lg-3">
+                <button type="button" name="task-do" id="task-do" class="btn btn-sm btn-info">执行筛选</button>
+            </div> -->
+            <!-- <div class="col col-12 col-md-4 col-lg-3">
                 <button type="button" name="do_select_neg" id="do_select_neg" class="btn btn-sm btn-primary">反选</button>
                 <button type="button" name="do_select_all" id="do_select_all" class="btn btn-sm btn-info">全选</button>
                 <button type="button" name="do_select_non" id="do_select_non" class="btn btn-sm btn-info">全消</button>
-            </div>
+            </div> -->
         </div>
     </div></div>
 
-    <div class="container my-5 page hiddent" id="page-editing"><div class="container py-5"><div id="box-editing"><the_data v-for="Z in Zs" :key="Z.id" :Z="Z"></the_data>
+    <div class="container my-5 page hiddent" id="page-editing"><div class="container py-5"><div id="box-editing">
+        <the_data v-for="Z in Zs" :key="Z.id" :Z="Z"></the_data>
     </div></div></div>
 
     <div class="container my-5 page hidden" id="page-main"><div class="container py-5">
@@ -203,8 +199,6 @@
     <script type="text/javascript" src="js/main.js"></script>
 
     <script type="text/javascript">
-        // document.getElementById("file-input").addEventListener("change", onChangeFile, false);
-        // document.getElementById("do_import").addEventListener("click", onImport, false);
         d3.select("#do_import").on('click',()=>{onImport();});
         // d3.select("#do_resort").on('click',()=>{the_vue.Ss.sort(function(a,b){return a.sortID-b.sortID;});});
         // d3.select("#do_select_non").on('click',()=>{
@@ -291,27 +285,82 @@
         //     let optn = d3.select("#task-option").node().value;
         //     d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
         // });
+        d3.select("#task-select").on('click',()=>{
+            let task = d3.select("#task-select").node().value;
+            let optn = d3.select("#task-option").node().value;
+            // d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
+            d3.selectAll(`span.type`).each(function(e, i) {
+                let evt_class = this.attributes['data-evt_class'].value;
+                let evt_type = this.attributes['data-type'].value;
+                let evt_id = this.attributes['data-evt_id'].value;
+                let zzz_id = this.attributes['data-order_id'].value;
+                //
+                the_vue.Zs[zzz_id].event_list[evt_id].hidden = true;
+                if ("【None】"==the_vue.selected_class) {
+                    the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
+                } else if (evt_class==the_vue.selected_class) {
+                    if ("【None】"==the_vue.selected_type||evt_type==the_vue.selected_type) {
+                        the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
+                    }
+                }
+                //
+                let torf = true;
+                for (let evt of the_vue.Zs[zzz_id].event_list) {
+                    torf = torf && evt.hidden;
+                }
+                the_vue.Zs[zzz_id].hidden = torf;
+            });
+        });
+        d3.select("#task-option").on('click',()=>{
+            let task = d3.select("#task-select").node().value;
+            let optn = d3.select("#task-option").node().value;
+            // d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
+            d3.selectAll(`span.type`).each(function(e, i) {
+                let evt_class = this.attributes['data-evt_class'].value;
+                let evt_type = this.attributes['data-type'].value;
+                let evt_id = this.attributes['data-evt_id'].value;
+                let zzz_id = this.attributes['data-order_id'].value;
+                //
+                the_vue.Zs[zzz_id].event_list[evt_id].hidden = true;
+                if ("【None】"==the_vue.selected_class) {
+                    the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
+                } else if (evt_class==the_vue.selected_class) {
+                    if ("【None】"==the_vue.selected_type||evt_type==the_vue.selected_type) {
+                        the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
+                    }
+                }
+                //
+                let torf = true;
+                for (let evt of the_vue.Zs[zzz_id].event_list) {
+                    torf = torf && evt.hidden;
+                }
+                the_vue.Zs[zzz_id].hidden = torf;
+            });
+        });
         // d3.select("#task-do").on('click',()=>{
         //     let task = d3.select("#task-select").node().value;
         //     let optn = d3.select("#task-option").node().value;
-        //     let ctxt = d3.select("#task-text").node().value;
-        //     d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
-        //     d3.selectAll(`.cxn-ctrol.selected`).each(function(e, i) {
-        //         let map = {
-        //             "类型":"type",
-        //             "评价":"evaluation",
-        //             "立场":"standpoint",
-        //             "强度":"intensity",
-        //             "情感":"emotion",
+        //     // d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
+        //     d3.selectAll(`span.type`).each(function(e, i) {
+        //         let evt_class = this.attributes['data-evt_class'].value;
+        //         let evt_type = this.attributes['data-type'].value;
+        //         let evt_id = this.attributes['data-evt_id'].value;
+        //         let zzz_id = this.attributes['data-order_id'].value;
+        //         //
+        //         the_vue.Zs[zzz_id].event_list[evt_id].hidden = true;
+        //         if ("【None】"==the_vue.selected_class) {
+        //             the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
+        //         } else if (evt_class==the_vue.selected_class) {
+        //             if ("【None】"==the_vue.selected_type||evt_type==the_vue.selected_type) {
+        //                 the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
+        //             }
         //         }
-        //         let S_id = this.attributes['data-s'].value;
-        //         let C_id = this.attributes['data-c'].value;
-        //         // the_vue.Ss.filter(s => s.id == S_id)
-        //         the_vue.Ss[S_id].cxns[C_id][map[task]]=optn;
-        //         if(map[task]=="emotion"&&optn=="自定义"){
-        //             the_vue.Ss[S_id].cxns[C_id]['custom_emotion']=ctxt;
+        //         //
+        //         let torf = true;
+        //         for (let evt of the_vue.Zs[zzz_id].event_list) {
+        //             torf = torf && evt.hidden;
         //         }
-        //         // d3.select(this).select(`.custom-select[data-task="${task}"]`);
+        //         the_vue.Zs[zzz_id].hidden = torf;
         //     });
         // });
         // d3.select("#do_save").on('click',()=>{
