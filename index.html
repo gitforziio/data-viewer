@@ -55,12 +55,17 @@
             border-radius: 0.2rem;
         }
         span.trigger{
-            background: #fffea4;
-            border: 0.5px dotted #ddd;
+            background: #fafafa;
+            border: 0.5px solid #aaa;
+            color: #6060E0;
         }
         span.argument{
             background: #fafafa;
             border: 0.5px solid #aaa;
+        }
+        span.argument.highlighted{
+            background: #fffea4;
+            border: 0.5px dotted #ddd;
         }
         span.argument[data-role]:before {
             content: '' attr(data-role);
@@ -146,13 +151,18 @@
         </div> -->
         <div class="row">
             <div class="col col-3 col-md-2">
-                <select class="custom-select custom-select-sm" name="task-select" id="task-select" v-model="selected_class">
+                <select class="custom-select custom-select-sm" name="select-class" id="select-class" v-model="selected_class">
                     <option v-for="cls in event_classes">{{cls}}</option>
                 </select>
             </div>
             <div class="col col-3 col-md-2">
-                <select class="custom-select custom-select-sm" name="task-option" id="task-option" v-model="selected_type">
+                <select class="custom-select custom-select-sm" name="select-type" id="select-type" v-model="selected_type">
                     <option v-for="typ in event_types">{{typ}}</option>
+                </select>
+            </div>
+            <div class="col col-3 col-md-2">
+                <select class="custom-select custom-select-sm" name="select-role" id="select-role" v-model="selected_role">
+                    <option v-for="role in event_roles">{{role}}</option>
                 </select>
             </div>
             <!-- <div class="col col-3 col-md-2">
@@ -274,21 +284,23 @@
         //         })
         //     ;
         // });
-        // d3.select("#task-select").on('change',()=>{
-        //     let optn = d3.select("#task-option").node().value;
+        // d3.select("#select-class").on('change',()=>{
+        //     let optn = d3.select("#select-type").node().value;
         //     d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
-        //     let task = d3.select("#task-select").node().value;
+        //     let task = d3.select("#select-class").node().value;
         //     let html = d3.select(`select[data-task="${task}"]`).node().innerHTML;
-        //     d3.select("#task-option").html(html);
+        //     d3.select("#select-type").html(html);
         // });
-        // d3.select("#task-option").on('change',()=>{
-        //     let optn = d3.select("#task-option").node().value;
+        // d3.select("#select-type").on('change',()=>{
+        //     let optn = d3.select("#select-type").node().value;
         //     d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
         // });
-        d3.select("#task-select").on('click',()=>{
-            let task = d3.select("#task-select").node().value;
-            let optn = d3.select("#task-option").node().value;
-            // d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
+        d3.select("#select-class").on('change',()=>{
+            d3.selectAll(`span.argument`).classed("highlighted", false);
+            the_vue.selected_type = "【Any】";
+            the_vue.selected_role = "【Any】";
+            let task = d3.select("#select-class").node().value;
+            let optn = d3.select("#select-type").node().value;
             d3.selectAll(`span.type`).each(function(e, i) {
                 let evt_class = this.attributes['data-evt_class'].value;
                 let evt_type = this.attributes['data-type'].value;
@@ -296,10 +308,10 @@
                 let zzz_id = this.attributes['data-order_id'].value;
                 //
                 the_vue.Zs[zzz_id].event_list[evt_id].hidden = true;
-                if ("【None】"==the_vue.selected_class) {
+                if ("【Any】"==the_vue.selected_class) {
                     the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
                 } else if (evt_class==the_vue.selected_class) {
-                    if ("【None】"==the_vue.selected_type||evt_type==the_vue.selected_type) {
+                    if ("【Any】"==the_vue.selected_type||evt_type==the_vue.selected_type) {
                         the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
                     }
                 }
@@ -311,10 +323,11 @@
                 the_vue.Zs[zzz_id].hidden = torf;
             });
         });
-        d3.select("#task-option").on('click',()=>{
-            let task = d3.select("#task-select").node().value;
-            let optn = d3.select("#task-option").node().value;
-            // d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
+        d3.select("#select-type").on('change',()=>{
+            d3.selectAll(`span.argument`).classed("highlighted", false);
+            the_vue.selected_role = "【Any】";
+            let task = d3.select("#select-class").node().value;
+            let optn = d3.select("#select-type").node().value;
             d3.selectAll(`span.type`).each(function(e, i) {
                 let evt_class = this.attributes['data-evt_class'].value;
                 let evt_type = this.attributes['data-type'].value;
@@ -322,10 +335,10 @@
                 let zzz_id = this.attributes['data-order_id'].value;
                 //
                 the_vue.Zs[zzz_id].event_list[evt_id].hidden = true;
-                if ("【None】"==the_vue.selected_class) {
+                if ("【Any】"==the_vue.selected_class) {
                     the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
                 } else if (evt_class==the_vue.selected_class) {
-                    if ("【None】"==the_vue.selected_type||evt_type==the_vue.selected_type) {
+                    if ("【Any】"==the_vue.selected_type||evt_type==the_vue.selected_type) {
                         the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
                     }
                 }
@@ -337,32 +350,37 @@
                 the_vue.Zs[zzz_id].hidden = torf;
             });
         });
-        // d3.select("#task-do").on('click',()=>{
-        //     let task = d3.select("#task-select").node().value;
-        //     let optn = d3.select("#task-option").node().value;
-        //     // d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
-        //     d3.selectAll(`span.type`).each(function(e, i) {
-        //         let evt_class = this.attributes['data-evt_class'].value;
-        //         let evt_type = this.attributes['data-type'].value;
-        //         let evt_id = this.attributes['data-evt_id'].value;
-        //         let zzz_id = this.attributes['data-order_id'].value;
-        //         //
-        //         the_vue.Zs[zzz_id].event_list[evt_id].hidden = true;
-        //         if ("【None】"==the_vue.selected_class) {
-        //             the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
-        //         } else if (evt_class==the_vue.selected_class) {
-        //             if ("【None】"==the_vue.selected_type||evt_type==the_vue.selected_type) {
-        //                 the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
-        //             }
-        //         }
-        //         //
-        //         let torf = true;
-        //         for (let evt of the_vue.Zs[zzz_id].event_list) {
-        //             torf = torf && evt.hidden;
-        //         }
-        //         the_vue.Zs[zzz_id].hidden = torf;
-        //     });
-        // });
+        d3.select("#select-role").on('change',()=>{
+            d3.selectAll(`span.argument`).classed("highlighted", false);
+            let task = d3.select("#select-class").node().value;
+            let optn = d3.select("#select-type").node().value;
+            d3.selectAll(`span.type`).each(function(e, i) {
+                let evt_class = this.attributes['data-evt_class'].value;
+                let evt_type = this.attributes['data-type'].value;
+                let evt_id = this.attributes['data-evt_id'].value;
+                let zzz_id = this.attributes['data-order_id'].value;
+                //
+                the_vue.Zs[zzz_id].event_list[evt_id].hidden = true;
+                if ("【Any】"==the_vue.selected_class) {
+                    the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
+                } else if (evt_class==the_vue.selected_class) {
+                    if ("【Any】"==the_vue.selected_type||evt_type==the_vue.selected_type) {
+                        for (let arg of the_vue.Zs[zzz_id].event_list[evt_id].arguments) {
+                            if ("【Any】"==the_vue.selected_role||arg.role==the_vue.selected_role) {
+                                the_vue.Zs[zzz_id].event_list[evt_id].hidden = false;
+                            }
+                        }
+                    }
+                }
+                //
+                let torf = true;
+                for (let evt of the_vue.Zs[zzz_id].event_list) {
+                    torf = torf && evt.hidden;
+                }
+                the_vue.Zs[zzz_id].hidden = torf;
+            });
+            d3.selectAll(`span.argument[data-role = "${the_vue.selected_role}"]`).classed("highlighted", true);
+        });
         // d3.select("#do_save").on('click',()=>{
         //     let s_s = [];
         //     s_s.push(`<?xml version="1.0" encoding="UTF-8"?>`);

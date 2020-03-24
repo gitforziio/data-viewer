@@ -58,9 +58,9 @@ function mark(item) {
         let evt_html_lst = text.split("");
         evt_html_lst[evt.trigger_start_index] = `<span class="trigger">`+evt_html_lst[evt.trigger_start_index];
         evt_html_lst[evt.trigger_start_index+evt.trigger.length-1] += `</span>`;
-        let args = evt.arguments;
-        args.sort(function(a,b){return a.argument.length-b.argument.length});
-        args.forEach((arg, j) => {
+        let roles = evt.arguments;
+        roles.sort(function(a,b){return a.argument.length-b.argument.length});
+        roles.forEach((arg, j) => {
             evt_html_lst[arg.argument_start_index] = `<span class="argument" data-role="${arg.role}">`+evt_html_lst[arg.argument_start_index];
             evt_html_lst[arg.argument_start_index+arg.argument.length-1] += `</span>`;
         });
@@ -74,13 +74,14 @@ var the_vue = new Vue({
     el: '#bodywrap',
     data: {
         Zs: [],
-        selected_class: "【None】",
-        selected_type: "【None】",
+        selected_class: "【Any】",
+        selected_type: "【Any】",
+        selected_role: "【Any】",
     },
     computed: {
         event_classes: function(){
             var event_classes = new Set();
-            event_classes.add("【None】");
+            event_classes.add("【Any】");
             for (let zz of this.Zs) {
                 for (let event of zz.event_list){
                     let vl = event.class;
@@ -91,17 +92,30 @@ var the_vue = new Vue({
         },
         event_types: function(){
             var event_types = new Set();
-            event_types.add("【None】");
+            event_types.add("【Any】");
             var len = this.selected_class.length;
             for (let zz of this.Zs) {
                 for (let event of zz.event_list){
-                    let vl = event.event_type;
-                    if (vl.slice(0,len) == this.selected_class) {
-                        event_types.add(vl);
+                    if (event.class == this.selected_class) {
+                        event_types.add(event.event_type);
                     }
                 }
             }
             return event_types;
+        },
+        event_roles: function(){
+            var event_roles = new Set();
+            event_roles.add("【Any】");
+            for (let zz of this.Zs) {
+                for (let event of zz.event_list){
+                    if (event.event_type == this.selected_type || ("【Any】" == this.selected_type && event.class == this.selected_class)) {
+                        for (let argument of event.arguments) {
+                            event_roles.add(argument.role);
+                        }
+                    }
+                }
+            }
+            return event_roles;
         },
     },
     methods: {
