@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <!-- 上一条代码IE=edge告诉IE使用最新的引擎渲染网页，chrome=1则可以激活Chrome Frame. -->
+    <!-- https://blog.csdn.net/oJingZhiYuan12/article/details/88015130 -->
+    <!-- 不过现在都什么年代了，IE我们就别考虑了吧，哈哈哈。 -->
+
+    <title>数据查看器</title>
+
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link href="css/style.css" rel="stylesheet" type="text/css"> -->
+    <!-- <link href="cxn.css" rel="stylesheet" type="text/css"> -->
+    <style type="text/css">
+        body{background: #eee;}
+        .bodywrap{min-height: 100vh;}
+        .container.page{background: #fff;}
+        .span-nav-desc{font-size: 0.6em;}
+        .hidden{display: none;}
+        /*#footer{padding-bottom: 5rem;}*/
+
+        /*#box-editing{max-height: 80vh; overflow: auto;}*/
+
+        .card-wrap{background: #fafafa; border: 1px solid #eee; margin: 1rem 0;}
+        .btn_stc_wrap{margin: 0 0 1rem 0;}
+        .textarea-editing,.xml-wrap{margin: 1rem 0;}
+        .xml-area-wrap{background: #fff; /*border-bottom: 1px solid #eee;*/}
+        .cxn-ctrol>.col>*{margin: 0.5rem 0; min-height: calc(1.5em + .5rem + 2px);}
+        .cxn-ctrol.selected{background: #ff0}
+
+        #page-ctrl{background: #fafafa;border: 1px solid #343a40; border-radius: 6px;}
+        #page-ctrl>.container>.row>.col>*{margin: 0.25rem 0;}
+        .outputbox{font-size: 10px;}
+
+
+        div.thing-item, div.thing-event {
+            margin: 0.5em;
+            padding: 0.5em;
+            border-radius: 0.2rem;
+            border: 1px solid #ddd;
+        }
+
+
+        span.type{
+            margin: 0 1em 0 0;
+            font-weight: bolder;
+        }
+        span.trigger, span.argument{
+            display: inline;
+            margin: 0 0.5rem;
+            padding: 0.1rem 0.25rem;
+            border-radius: 0.2rem;
+        }
+        span.trigger{
+            background: #fffea4;
+            border: 0.5px dotted #ddd;
+        }
+        span.argument{
+            background: #fafafa;
+            border: 0.5px solid #aaa;
+        }
+        span.argument[data-role]:before {
+            content: '' attr(data-role);
+            margin: 0 0.1rem;
+            padding: 0.1rem 0.25rem;
+            border-radius: 0.2rem;
+            display: inline;
+            /*background: #AFDDDC;*/
+            color: #aaa;
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+<div class="bodywrap">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">数据查看器</a><!-- 
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#the_navbar_toggler" aria-controls="the_navbar_toggler" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="the_navbar_toggler">
+        </div> -->
+    </nav>
+
+    <div class="container my-5 page hiddent" id="page-import"><div class="container py-2">
+        <div class="row">
+            <div class="col">
+                <form name="file-form" class="container">
+                    <div class="row" id="filePicker">
+                        <label for="file-input" class="col-md-2 my-2 col-form-label text-md-right">选择文件：</label>
+                        <div class="col-md-8 my-2">
+                            <input type="file" class="form-control" name="file-input" id="file-input" name="file" multiple="multiple" accept=".json" />
+                        </div>
+                        <div class="col-md-2 my-2">
+                            <button type="button" name="do_import" id="do_import" class="btn btn-primary">导入</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- <div class="row">
+            <div class="col">
+                <div class="something">
+    <button id="button" aria-describedby="tooltip" class="btn btn-sm btn-primary">My button</button>
+    <div id="tooltip" role="tooltip">
+      My tooltip
+      <div id="arrow" data-popper-arrow></div>
+    </div>
+                </div>
+            </div>
+        </div> -->
+    </div></div>
+
+    <div class="container my-5 page hidden" id="page-output"><div class="container py-5">
+        <div class="row">
+            <div class="col">
+                <div id="output"></div>
+            </div>
+        </div>
+    </div></div>
+
+    <div class="container my-2 page hiddent fixed-bottom" id="page-ctrl"><div class="container">
+<!--         <div class="row">
+            <div class="col col-6 col-md-3 col-lg-3">
+                <button type="button" name="do_save" id="do_save" class="btn btn-sm btn-success">导出</button>
+                <button type="button" name="do_resort" id="do_resort" class="btn btn-sm btn-primary">重新排序</button>
+            </div>
+            <div class="col col-6 col-md-3 col-lg-3">
+                <button type="button" name="do_toogle_annotated" id="do_toogle_annotated" class="btn btn-sm btn-success">切换已标/未标</button>
+            </div>
+            <div class="col col-6 col-md-3 col-lg-3">
+                <button type="button" name="do_select_all_annotated" id="do_select_all_annotated" class="btn btn-sm btn-info">全选已标</button>
+                <button type="button" name="do_select_all_not_annotated" id="do_select_all_not_annotated" class="btn btn-sm btn-info">全选未标</button>
+            </div>
+            <div class="col col-6 col-md-3 col-lg-3">
+                <button type="button" name="do_addselect_all_annotated" id="do_addselect_all_annotated" class="btn btn-sm btn-info">增all已标</button>
+                <button type="button" name="do_addselect_all_not_annotated" id="do_addselect_all_not_annotated" class="btn btn-sm btn-info">增all未标</button>
+            </div>
+        </div> -->
+        <div class="row">
+            <div class="col col-3 col-md-2">
+                <select class="custom-select custom-select-sm" name="task-select" id="task-select"><!-- 
+                    <option>类型</option>
+                    <option>评价</option>
+                    <option>立场</option>
+                    <option>强度</option>
+                    <option>情感</option> -->
+                </select>
+            </div>
+            <div class="col col-3 col-md-2">
+                <select class="custom-select custom-select-sm" name="task-option" id="task-option"><!-- 
+                    <option>主观情感类构式</option>
+                    <option>缺省</option> -->
+                </select>
+            </div><!-- 
+            <div class="col col-3 col-md-2">
+                <input class="form-control form-control-sm" type="text" name="task-text" id="task-text">
+            </div> -->
+            <div class="col col-3 col-md-2 col-lg-3">
+                <button type="button" name="task-do" id="task-do" class="btn btn-sm btn-info">执行</button>
+            </div>
+            <div class="col col-12 col-md-4 col-lg-3">
+                <button type="button" name="do_select_neg" id="do_select_neg" class="btn btn-sm btn-primary">反选</button>
+                <button type="button" name="do_select_all" id="do_select_all" class="btn btn-sm btn-info">全选</button>
+                <button type="button" name="do_select_non" id="do_select_non" class="btn btn-sm btn-info">全消</button>
+            </div>
+        </div>
+    </div></div>
+
+    <div class="container my-5 page hiddent" id="page-editing"><div class="container py-5"><div id="box-editing"><the_data v-for="Z in Zs" :key="Z.id" :Z="Z"></the_data>
+    </div></div></div>
+
+    <div class="container my-5 page hidden" id="page-main"><div class="container py-5">
+        <div class="row">
+            <div class="col"><link href="css/cxn.css" rel="stylesheet" type="text/css">
+                <div id="xml"></div>
+            </div>
+        </div>
+    </div></div>
+
+</div>
+
+<footer class="pt-4 pb-5 bg-dark text-white" id="footer">
+    <div class="container text-center">
+        <p>Github: <a href="https://github.com/gitforziio/data-viewer" target="_blank">@gitforziio/data-viewer</a></p>
+    </div>
+</footer>
+
+    <script src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
+    <!-- <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script> -->
+    <!-- <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script> -->
+    <!-- <script src="https://cdn.bootcss.com/popper.js/1.16.1/esm/popper.min.js"></script> -->
+    <script src="https://cdn.bootcss.com/d3/5.12.0/d3.min.js"></script>
+
+    <script type="text/javascript" src="js/FileSaver.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+
+    <script type="text/javascript">
+        // document.getElementById("file-input").addEventListener("change", onChangeFile, false);
+        // document.getElementById("do_import").addEventListener("click", onImport, false);
+        d3.select("#do_import").on('click',()=>{onImport();});
+        // d3.select("#do_resort").on('click',()=>{the_vue.Ss.sort(function(a,b){return a.sortID-b.sortID;});});
+        // d3.select("#do_select_non").on('click',()=>{
+        //     d3.selectAll(".cxn-ctrol.selected .custom-checkbox .cxn-checkbox").each(function(e, i) {
+        //         this.click();
+        //     });
+        // });
+        // d3.select("#do_select_neg").on('click',()=>{
+        //     d3.selectAll(".cxn-ctrol .custom-checkbox .cxn-checkbox").each(function(e, i) {
+        //         this.click();
+        //     });
+        // });
+        // d3.select("#do_select_all").on('click',()=>{
+        //     d3.selectAll(".cxn-ctrol.selected .custom-checkbox .cxn-checkbox").each(function(e, i) {
+        //         this.click();
+        //     });
+        //     d3.selectAll(".cxn-ctrol .custom-checkbox .cxn-checkbox").each(function(e, i) {
+        //         this.click();
+        //     });
+        // });
+        // d3.select("#do_select_all_not_annotated").on('click',()=>{
+        //     d3.selectAll(".btn_stc_confirm_1.btn-danger")
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .selectAll(".cxn-ctrol.selected .custom-checkbox .cxn-checkbox")
+        //         .each(function(e, i) {
+        //             this.click();
+        //         });
+        //     d3.selectAll(".btn_stc_confirm_1.btn-danger")
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .selectAll(".cxn-ctrol .custom-checkbox .cxn-checkbox")
+        //         .each(function(e, i) {
+        //             this.click();
+        //         });
+        // });
+        // d3.select("#do_select_all_annotated").on('click',()=>{
+        //     d3.selectAll(".btn_stc_confirm_1.btn-light")
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .selectAll(".cxn-ctrol.selected .custom-checkbox .cxn-checkbox")
+        //         .each(function(e, i) {
+        //             this.click();
+        //         });
+        //     d3.selectAll(".btn_stc_confirm_1.btn-light")
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .selectAll(".cxn-ctrol .custom-checkbox .cxn-checkbox")
+        //         .each(function(e, i) {
+        //             this.click();
+        //         });
+        // });
+        // d3.select("#do_toogle_annotated").on('click',()=>{
+        //     d3.selectAll(".cxn-ctrol.selected")
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(function(){return this.parentNode;})
+        //         .select(".btn_stc_confirm_1")
+        //         .each(function(e, i) {
+        //             this.click();
+        //         })
+        //     ;
+        // });
+        // d3.select("#task-select").on('change',()=>{
+        //     let optn = d3.select("#task-option").node().value;
+        //     d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
+        //     let task = d3.select("#task-select").node().value;
+        //     let html = d3.select(`select[data-task="${task}"]`).node().innerHTML;
+        //     d3.select("#task-option").html(html);
+        // });
+        // d3.select("#task-option").on('change',()=>{
+        //     let optn = d3.select("#task-option").node().value;
+        //     d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
+        // });
+        // d3.select("#task-do").on('click',()=>{
+        //     let task = d3.select("#task-select").node().value;
+        //     let optn = d3.select("#task-option").node().value;
+        //     let ctxt = d3.select("#task-text").node().value;
+        //     d3.select("#task-text").attr("disabled",((optn=="自定义") ? null : "disabled"));
+        //     d3.selectAll(`.cxn-ctrol.selected`).each(function(e, i) {
+        //         let map = {
+        //             "类型":"type",
+        //             "评价":"evaluation",
+        //             "立场":"standpoint",
+        //             "强度":"intensity",
+        //             "情感":"emotion",
+        //         }
+        //         let S_id = this.attributes['data-s'].value;
+        //         let C_id = this.attributes['data-c'].value;
+        //         // the_vue.Ss.filter(s => s.id == S_id)
+        //         the_vue.Ss[S_id].cxns[C_id][map[task]]=optn;
+        //         if(map[task]=="emotion"&&optn=="自定义"){
+        //             the_vue.Ss[S_id].cxns[C_id]['custom_emotion']=ctxt;
+        //         }
+        //         // d3.select(this).select(`.custom-select[data-task="${task}"]`);
+        //     });
+        // });
+        // d3.select("#do_save").on('click',()=>{
+        //     let s_s = [];
+        //     s_s.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+        //     s_s.push(`<document xmlns="http://ccl.pku.edu.cn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ccl.pku.edu.cn construction.xsd">`);
+        //     d3.selectAll("#page-editing .xml-wrap>sentence").each(function(p,i){
+        //         let line = `\t${this.outerHTML}`;
+        //         if (!line.match(/emotion="自定义"/g)) {
+        //             line = line.replace(/custom-emotion="[^"]+"/g,"");
+        //         }
+        //         s_s.push(line);
+        //     })
+        //     s_s.push(`</document>`);
+        //     let xml=s_s.join('\n');
+        //     d3.select("#output *").remove();
+        //     d3.select("#output").append("textarea").attr("class","form-control outputbox").text(xml);
+
+        //     var file = new File([xml], (FILENAME?FILENAME:'thing.xml'), { type: "text/plain; charset=utf-8" });
+        //     saveAs(file);
+        // });
+    </script>
+
+<!-- 
+
+    <style>
+      #tooltip {
+        background: #333;
+        color: white;
+        font-weight: bold;
+        padding: 4px 8px;
+        font-size: 13px;
+        border-radius: 4px;
+        display: none;
+      }
+
+      #tooltip[data-show] {
+        display: block;
+      }
+
+      #arrow,
+      #arrow::before {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        z-index: -1;
+      }
+
+      #arrow::before {
+        content: '';
+        transform: rotate(45deg);
+        background: #333;
+      }
+
+      #tooltip[data-popper-placement^='top'] > #arrow {
+        bottom: -4px;
+      }
+
+      #tooltip[data-popper-placement^='bottom'] > #arrow {
+        top: -4px;
+      }
+
+      #tooltip[data-popper-placement^='left'] > #arrow {
+        right: -4px;
+      }
+
+      #tooltip[data-popper-placement^='right'] > #arrow {
+        left: -4px;
+      }
+    </style>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script>
+      const button = document.querySelector('#button');
+      const tooltip = document.querySelector('#tooltip');
+
+      let popperInstance = null;
+
+      function create() {
+        popperInstance = Popper.createPopper(button, tooltip, {
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: [0, 8],
+              },
+            },
+          ],
+        });
+      }
+
+      function destroy() {
+        if (popperInstance) {
+          popperInstance.destroy();
+          popperInstance = null;
+        }
+      }
+
+      function show() {
+        tooltip.setAttribute('data-show', '');
+        create();
+      }
+
+      function hide() {
+        tooltip.removeAttribute('data-show');
+        destroy();
+      }
+
+      const showEvents = ['mouseenter', 'focus'];
+      const hideEvents = ['mouseleave', 'blur'];
+
+      showEvents.forEach(event => {
+        button.addEventListener(event, show);
+      });
+
+      hideEvents.forEach(event => {
+        button.addEventListener(event, hide);
+      });
+    </script>
+ -->
+
+</body>
+
+</html>

@@ -1,0 +1,196 @@
+document {
+    /*max-width: 800px;*/
+    /*margin: 6rem auto;*/
+    /*padding: 2rem;*/
+    display: block;
+    list-style: decimal;
+    background: #fff;
+    font-family: '黑体';
+    line-height: 1.5;
+}
+sentence, s {
+    margin: 1rem 0 1rem 2rem;
+    display: list-item;
+}
+.xml-area-wrap sentence, .xml-area-wrap s {
+    margin: 1rem 0;
+    display: block;
+}
+cxn{
+    display: inline;
+    margin: 0 0.5rem;
+    padding: 0.1rem 0.25rem;
+    background: #eee;
+    border: 0.5px dotted #ddd;
+    border-radius: 0.2rem;
+}
+cxn * {
+    margin: 0 0.1rem;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.2rem;
+}
+cxn constant, cxn c {
+    display: inline;
+    background: #fff;
+    color: #6060E0;
+}
+cxn variable, cxn v {
+    display: inline;
+    background: #fff;
+    color: #F86900;
+}
+cxn variable:only-child, cxn v:only-child {
+    background: #E02020;
+    color: #fff;
+}
+
+
+cxn:after {
+    content: 'none';
+    margin: 0 0.1rem;
+    padding: 0.1rem 0.25rem;
+    border-radius: 0.2rem;
+    display: inline;
+    /*background: #AFDDDC;*/
+    color: #aaa;
+}
+
+
+
+
+cxn[evaluation]:after {
+    content: '' attr(evaluation);
+}
+cxn[standpoint]:after {
+    content: '' attr(standpoint);
+}
+cxn[emotion]:after {
+    content: '' attr(custom-emotion);
+}
+cxn[intensity]:after {
+    content: '' attr(intensity);
+}
+
+cxn[evaluation][standpoint]:after {
+    content: '' attr(evaluation) ' | ' attr(standpoint);
+}
+cxn[evaluation][emotion]:after {
+    content: '' attr(evaluation) ' | ' attr(custom-emotion);
+}
+cxn[evaluation][intensity]:after {
+    content: '' attr(evaluation) ' | ' attr(intensity);
+}
+cxn[standpoint][emotion]:after {
+    content: '' attr(standpoint) ' | ' attr(custom-emotion);
+}
+cxn[standpoint][intensity]:after {
+    content: '' attr(standpoint) ' | ' attr(intensity);
+}
+cxn[emotion][intensity]:after {
+    content: '' attr(standpoint) ' | ' attr(intensity);
+}
+
+cxn[evaluation][standpoint][emotion]:after {
+    content: '' attr(evaluation) ' | ' attr(standpoint) ' | ' attr(custom-emotion);
+}
+cxn[evaluation][standpoint][intensity]:after {
+    content: '' attr(evaluation) ' | ' attr(standpoint) ' | ' attr(intensity);
+}
+cxn[evaluation][emotion][intensity]:after {
+    content: '' attr(evaluation) ' | ' attr(custom-emotion) ' | ' attr(intensity);
+}
+cxn[standpoint][emotion][intensity]:after {
+    content: '' attr(standpoint) ' | ' attr(custom-emotion) ' | ' attr(intensity);
+}
+
+cxn[evaluation][standpoint][emotion][intensity]:after {
+    content: '' attr(evaluation) ' | ' attr(standpoint) ' | ' attr(custom-emotion) ' | ' attr(intensity);
+}
+
+
+
+
+
+
+cxn[evl]:after {
+    content: '' attr(evl);
+}
+cxn[std]:after {
+    content: '' attr(std);
+}
+cxn[emt]:after {
+    content: '' attr(emt);
+}
+cxn[its]:after {
+    content: '' attr(its);
+}
+
+cxn[evl][std]:after {
+    content: '' attr(evl) ' | ' attr(std);
+}
+cxn[evl][emt]:after {
+    content: '' attr(evl) ' | ' attr(emt);
+}
+cxn[evl][its]:after {
+    content: '' attr(evl) ' | ' attr(its);
+}
+cxn[std][emt]:after {
+    content: '' attr(std) ' | ' attr(emt);
+}
+cxn[std][its]:after {
+    content: '' attr(std) ' | ' attr(its);
+}
+cxn[emt][its]:after {
+    content: '' attr(std) ' | ' attr(its);
+}
+
+cxn[evl][std][emt]:after {
+    content: '' attr(evl) ' | ' attr(std) ' | ' attr(emt);
+}
+cxn[evl][std][its]:after {
+    content: '' attr(evl) ' | ' attr(std) ' | ' attr(its);
+}
+cxn[evl][emt][its]:after {
+    content: '' attr(evl) ' | ' attr(emt) ' | ' attr(its);
+}
+cxn[std][emt][its]:after {
+    content: '' attr(std) ' | ' attr(emt) ' | ' attr(its);
+}
+
+cxn[evl][std][emt][its]:after {
+    content: '' attr(evl) ' | ' attr(std) ' | ' attr(emt) ' | ' attr(its);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
