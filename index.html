@@ -36,11 +36,23 @@
         .outputbox{font-size: 10px;}
 
 
-        div.thing-item, div.thing-event {
+        div.thing-item, div.thing-event, div.thing-hit {
             margin: 0.5em;
             padding: 0.5em;
             border-radius: 0.2rem;
             border: 1px solid #ddd;
+        }
+
+        div.thing-item {
+            margin: 1.5em 0.5em;
+        }
+
+        div.thing-hit {
+            background: #fafafa;
+        }
+
+        div.thing-hit > p:last-child {
+            margin-bottom: 0;
         }
 
 
@@ -99,12 +111,21 @@
             <div class="col">
                 <form name="file-form" class="container">
                     <div class="row" id="filePicker">
-                        <label for="file-input" class="col-md-2 my-2 col-form-label text-md-right">选择文件：</label>
+                        <label for="file-input" class="col-md-2 my-2 col-form-label text-md-right">数据文件：</label>
                         <div class="col-md-8 my-2">
                             <input type="file" class="form-control" name="file-input" id="file-input" name="file" multiple="multiple" accept=".json" />
                         </div>
                         <div class="col-md-2 my-2">
                             <button type="button" name="do_import" id="do_import" class="btn btn-primary">导入</button>
+                        </div>
+                    </div>
+                    <div class="row" id="triggerPicker">
+                        <label for="trigger-input" class="col-md-2 my-2 col-form-label text-md-right">触发规则：</label>
+                        <div class="col-md-8 my-2">
+                            <input type="file" class="form-control" name="trigger-input" id="trigger-input" name="file" multiple="multiple" accept=".csv, .txt" />
+                        </div>
+                        <div class="col-md-2 my-2">
+                            <button type="button" name="do_trigger_import" id="do_trigger_import" class="btn btn-primary">导入</button>
                         </div>
                     </div>
                 </form>
@@ -180,7 +201,7 @@
     </div></div>
 
     <div class="container my-5 page hiddent" id="page-editing"><div class="container py-5"><div id="box-editing">
-        <the_data v-for="Z in Zs" :key="Z.id" :Z="Z"></the_data>
+        <the_data v-for="Z in Zs" :key="Z.id" :Z="Z" :hit_list_list="hit_list_list"></the_data>
     </div></div></div>
 
     <div class="container my-5 page hidden" id="page-main"><div class="container py-5">
@@ -210,6 +231,7 @@
 
     <script type="text/javascript">
         d3.select("#do_import").on('click',()=>{onImport();});
+        d3.select("#do_trigger_import").on('click',()=>{onImportTriggerRule();});
         // d3.select("#do_resort").on('click',()=>{the_vue.Ss.sort(function(a,b){return a.sortID-b.sortID;});});
         // d3.select("#do_select_non").on('click',()=>{
         //     d3.selectAll(".cxn-ctrol.selected .custom-checkbox .cxn-checkbox").each(function(e, i) {
