@@ -79,7 +79,8 @@ function triggerCheck(str, trigger_rule) {
     let excepting, resulted, result;
 
     if (type) {
-        if (!str.search(excepter)) {
+        excepter_string = str.match(excepter)?str.match(excepter)[0]:"";
+        if (!excepter_string) {
             let ptn, situation, rst;
             if (cue_left && trigger) {
                 ptn = `(${cue_left})[^(${trigger})]*(${trigger})`;
@@ -97,7 +98,7 @@ function triggerCheck(str, trigger_rule) {
             rst = str.match(ptn)||[false];
             result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule};
         } else {
-            result = {situation: "排除", type: type, evidence: excepter, rule: trigger_rule};
+            result = {situation: "排除", type: type, evidence: excepter_string, rule: trigger_rule};
         }
     }
 
