@@ -96,9 +96,9 @@ function triggerCheck(str, trigger_rule) {
                 situation = "疑似";
             }
             rst = str.match(ptn)||[false];
-            result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule};
+            result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule, ptn: ptn};
         } else {
-            result = {situation: "排除", type: type, evidence: excepter_string, rule: trigger_rule};
+            result = {situation: "排除", type: type, evidence: excepter_string, rule: trigger_rule, ptn: excepter};
         }
     }
 
@@ -213,7 +213,7 @@ Vue.component('the_data', {
                 <p v-html="event.evt_html"></p>
             </div>
             <div class="thing-hit" v-if="hit_list_list[Z.order_id][0]">
-                <p v-for="(hit, l) in hit_list_list[Z.order_id]">【{{hit.situation}}：{{hit.type}}】“{{hit.evidence}}”</p>
+                <p v-for="(hit, l) in hit_list_list[Z.order_id]">【{{hit.situation}}：{{hit.type}}】“{{hit.evidence}}”【{{hit.ptn}}】</p>
             </div>
         </div>`,
 })
