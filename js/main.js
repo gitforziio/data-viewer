@@ -14,8 +14,6 @@ function onImport() {
             var reader = new FileReader();
             reader.readAsText(file, "utf-8");
             reader.onload = function(evt) {
-                // d3.select("#xml").html(this.result);
-                // the_vue.Ss = xml2data();
                 Zs_list = this.result.split("\n")
                 the_vue.Zs = []
                 Zs_list.forEach((d,i) => {
@@ -23,7 +21,6 @@ function onImport() {
                         z = mark(JSON.parse(d));
                         z.order_id = i;
                         z.hidden = false;
-                        z.hit_list = [];
                         the_vue.Zs.push(z);
                         // console.log(the_vue.Zs[the_vue.Zs.length-1].text);
                     }
@@ -46,14 +43,15 @@ function onImportTriggerRule() {
             var reader = new FileReader();
             reader.readAsText(file, "GBK");
             reader.onload = function(evt) {
+                the_vue.trigger_rules = [];
                 // console.log(this.result);
-                // let this_result = GBK_Decoder.decode(this.result)
-                // console.log(this_result);
                 var triggers = this.result.split("\n")
                 for (let trigger of triggers) {
                     let trigger_rule = ["", "", "", "", ""];
+                    trigger = `${trigger.replace(/\r/g, '')}`;
                     trigger = `${trigger.replace(/^(,+)/g, '')}`;
-                    if (!trigger || trigger[0]=="#") {} else {
+                    trigger = `${trigger.replace(/#.+$/g, '')}`;
+                    if (!trigger) {} else {
                         let tgs = trigger.split(",");
                         trigger_rule[0] = tgs[0]?tgs[0]:"";
                         trigger_rule[1] = tgs[1]?tgs[1]:"";
@@ -61,12 +59,12 @@ function onImportTriggerRule() {
                         trigger_rule[3] = tgs[3]?tgs[3]:"";
                         trigger_rule[4] = tgs[4]?tgs[4]:"";
                         the_vue.trigger_rules.push(trigger_rule);
+                        console.log(trigger_rule);
                     }
                 }
             };
         }
     }
-
 }
 
 
@@ -143,7 +141,7 @@ var the_vue = new Vue({
                 let hit_list = [];
                 for (let trigger_rule of this.trigger_rules) {
                     let thing = triggerCheck(zz.text, trigger_rule);
-                    if (thing.situation=="命中"||thing.situation=="疑似") {
+                    if (thing.situation=="命中"||thing.situation=="疑似"||thing.situation=="排除") {
                         hit_list.push(thing);
                     }
                 }
