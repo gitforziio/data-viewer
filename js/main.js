@@ -68,7 +68,7 @@ function onImportTriggerRule() {
 }
 
 
-function triggerCheck(str, trigger_rule) {
+function triggerCheck(str, trigger_rule, event_type_list) {
     // console.log(trigger_rule);
     var type = trigger_rule[0].trim();
     var cue_left = trigger_rule[1].trim();
@@ -76,7 +76,7 @@ function triggerCheck(str, trigger_rule) {
     var excepter = trigger_rule[3].trim();
     var cue_right = trigger_rule[4].trim();
 
-    let excepting, resulted, result;
+    let excepting, resulted, result, corr_class;
 
     if (type) {
         excepter_string = str.match(excepter)?str.match(excepter)[0]:"";
@@ -85,20 +85,25 @@ function triggerCheck(str, trigger_rule) {
             if (cue_left && trigger) {
                 ptn = `(${cue_left})[^(${trigger})]*(${trigger})`;
                 situation = "命中";
+                corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
             } else if (trigger && cue_right) {
                 ptn = `(${trigger})[^(${cue_right})]*(${cue_right})`;
                 situation = "命中";
+                corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
             } else if (trigger) {
                 ptn = `(${trigger})`;
                 situation = "命中";
+                corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
             } else if (cue_left || cue_right) {
                 ptn = `(${cue_left?cue_left:cue_right})`;
                 situation = "疑似";
+                corr_class = (event_type_list.has(type))?"corr corr-seem":"corr corr-seem_error";
             }
             rst = str.match(ptn)||[false];
-            result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule, ptn: ptn};
+            result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule, ptn: ptn, corr_class: corr_class};
         } else {
-            result = {situation: "排除", type: type, evidence: excepter_string, rule: trigger_rule, ptn: excepter};
+            corr_class = (event_type_list.has(type))?"corr corr-error":"corr corr-except";
+            result = {situation: "排除", type: type, evidence: excepter_string, rule: trigger_rule, ptn: excepter, corr_class: corr_class};
         }
     }
 
@@ -110,6 +115,7 @@ function mark(item) {
     var result = item;
     var text = item.text;
     var evts = item.event_list;
+    result.event_type_list = new Set();
     evts.forEach((evt, i) => {
         let evt_html_lst = text.split("");
         evt_html_lst[evt.trigger_start_index] = `<span class="trigger">`+evt_html_lst[evt.trigger_start_index];
@@ -122,6 +128,7 @@ function mark(item) {
         });
         result.event_list[i].evt_html = evt_html_lst.join("");
         result.event_list[i].hidden = false;
+        result.event_type_list.add(evt.event_type);
     });
     return result;
 }
@@ -141,7 +148,7 @@ var the_vue = new Vue({
             for (let zz of this.Zs) {
                 let hit_list = [];
                 for (let trigger_rule of this.trigger_rules) {
-                    let thing = triggerCheck(zz.text, trigger_rule);
+                    let thing = triggerCheck(zz.text, trigger_rule, zz.event_type_list);
                     if (thing.situation=="命中"||thing.situation=="疑似"||thing.situation=="排除") {
                         hit_list.push(thing);
                     }
@@ -213,7 +220,9 @@ Vue.component('the_data', {
                 <p v-html="event.evt_html"></p>
             </div>
             <div class="thing-hit" v-if="hit_list_list[Z.order_id][0]">
-                <p v-for="(hit, l) in hit_list_list[Z.order_id]">【{{hit.situation}}：{{hit.type}}】“{{hit.evidence}}”【{{hit.ptn}}】</p>
+                <div v-for="(hit, l) in hit_list_list[Z.order_id]">
+                    <p :class="hit.corr_class">【{{hit.situation}}：{{hit.type}}】“{{hit.evidence}}”【{{hit.ptn}}】</p>
+                </div>
             </div>
         </div>`,
 })
