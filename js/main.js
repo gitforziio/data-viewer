@@ -142,12 +142,12 @@ function triggerCheck(str, trigger_rule, event_type_list) {
         }
         rst = str.match(ptn)||[false];
         result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule, ptn: ptn, corr_class: corr_class};
-        excepter_string = str.match(excepter)?str.match(excepter)[0]:"";
+        let excepter_string = str.match(excepter)?str.match(excepter)[0]:"";
         if (excepter_string && (result.situation=="找到"||result.situation=="疑似")) {
             corr_class = (event_type_list.has(type))?"corr corr-error":"corr corr-except";
             result.situation = result.situation+"后排除";
-            result.evidence = result.evidence+"（"+excepter_string+"）";
-            result.ptn = result.ptn+"（"+excepter+"）";
+            result.evidence = result.evidence+"（但有「"+excepter_string+"」）";
+            result.ptn = result.ptn+"（但有「"+excepter+"」）";
         }
     }
 
@@ -202,7 +202,7 @@ var the_vue = new Vue({
                 let hit_list = [];
                 for (let trigger_rule of this.trigger_rules) {
                     let thing = triggerCheck(zz.text, trigger_rule, zz.event_type_list);
-                    if (thing.situation=="找到"||thing.situation=="疑似"||thing.situation=="排除") {
+                    if (thing.situation=="找到"||thing.situation=="疑似"||thing.situation=="找到后排除"||thing.situation=="疑似后排除") {
                         hit_list.push(thing);
                     }
                 }
