@@ -68,6 +68,49 @@ function onImportTriggerRule() {
 }
 
 
+// function triggerCheck_Old(str, trigger_rule, event_type_list) {
+//     // console.log(trigger_rule);
+//     var type = trigger_rule[0].trim();
+//     var cue_left = trigger_rule[1].trim();
+//     var trigger = trigger_rule[2].trim();
+//     var excepter = trigger_rule[3].trim();
+//     var cue_right = trigger_rule[4].trim();
+
+//     let excepting, resulted, result, corr_class;
+
+//     if (type) {
+//         excepter_string = str.match(excepter)?str.match(excepter)[0]:"";
+//         if (!excepter_string) {
+//             let ptn, situation, rst;
+//             if (cue_left && trigger) {
+//                 ptn = `(${cue_left})[^(${trigger})，。！？：]*(${trigger})`;
+//                 situation = "找到";
+//                 corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
+//             } else if (trigger && cue_right) {
+//                 ptn = `(${trigger})[^(${cue_right})，。！？：]*(${cue_right})`;
+//                 situation = "找到";
+//                 corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
+//             } else if (trigger) {
+//                 ptn = `(${trigger})`;
+//                 situation = "找到";
+//                 corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
+//             } else if (cue_left || cue_right) {
+//                 ptn = `(${cue_left?cue_left:cue_right})`;
+//                 situation = "疑似";
+//                 corr_class = (event_type_list.has(type))?"corr corr-seem":"corr corr-seem_error";
+//             }
+//             rst = str.match(ptn)||[false];
+//             result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule, ptn: ptn, corr_class: corr_class};
+//         } else {
+//             corr_class = (event_type_list.has(type))?"corr corr-error":"corr corr-except";
+//             result = {situation: "排除", type: type, evidence: excepter_string, rule: trigger_rule, ptn: excepter, corr_class: corr_class};
+//         }
+//     }
+
+//     return result
+// }
+
+
 function triggerCheck(str, trigger_rule, event_type_list) {
     // console.log(trigger_rule);
     var type = trigger_rule[0].trim();
@@ -79,31 +122,32 @@ function triggerCheck(str, trigger_rule, event_type_list) {
     let excepting, resulted, result, corr_class;
 
     if (type) {
+        let ptn, situation, rst;
+        if (cue_left && trigger) {
+            ptn = `(${cue_left})[^(${trigger})，。！？：]*(${trigger})`;
+            situation = "找到";
+            corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
+        } else if (trigger && cue_right) {
+            ptn = `(${trigger})[^(${cue_right})，。！？：]*(${cue_right})`;
+            situation = "找到";
+            corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
+        } else if (trigger) {
+            ptn = `(${trigger})`;
+            situation = "找到";
+            corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
+        } else if (cue_left || cue_right) {
+            ptn = `(${cue_left?cue_left:cue_right})`;
+            situation = "疑似";
+            corr_class = (event_type_list.has(type))?"corr corr-seem":"corr corr-seem_error";
+        }
+        rst = str.match(ptn)||[false];
+        result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule, ptn: ptn, corr_class: corr_class};
         excepter_string = str.match(excepter)?str.match(excepter)[0]:"";
-        if (!excepter_string) {
-            let ptn, situation, rst;
-            if (cue_left && trigger) {
-                ptn = `(${cue_left})[^(${trigger})，。！？：]*(${trigger})`;
-                situation = "命中";
-                corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
-            } else if (trigger && cue_right) {
-                ptn = `(${trigger})[^(${cue_right})，。！？：]*(${cue_right})`;
-                situation = "命中";
-                corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
-            } else if (trigger) {
-                ptn = `(${trigger})`;
-                situation = "命中";
-                corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
-            } else if (cue_left || cue_right) {
-                ptn = `(${cue_left?cue_left:cue_right})`;
-                situation = "疑似";
-                corr_class = (event_type_list.has(type))?"corr corr-seem":"corr corr-seem_error";
-            }
-            rst = str.match(ptn)||[false];
-            result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule, ptn: ptn, corr_class: corr_class};
-        } else {
+        if (excepter_string && (result.situation=="找到"||result.situation=="疑似")) {
             corr_class = (event_type_list.has(type))?"corr corr-error":"corr corr-except";
-            result = {situation: "排除", type: type, evidence: excepter_string, rule: trigger_rule, ptn: excepter, corr_class: corr_class};
+            result.situation = result.situation+"后排除";
+            result.evidence = result.evidence+"（"+excepter_string+"）";
+            result.ptn = result.ptn+"（"+excepter+"）";
         }
     }
 
@@ -112,24 +156,33 @@ function triggerCheck(str, trigger_rule, event_type_list) {
 
 
 function mark(item) {
-    var result = item;
-    var text = item.text;
-    var evts = item.event_list;
+    var result, text, evts;
+    result = item;
+    text = item.text;
+    evts = item.event_list || [];
+    result.event_list = evts;
     result.event_type_list = new Set();
-    evts.forEach((evt, i) => {
-        let evt_html_lst = text.split("");
-        evt_html_lst[evt.trigger_start_index] = `<span class="trigger">`+evt_html_lst[evt.trigger_start_index];
-        evt_html_lst[evt.trigger_start_index+evt.trigger.length-1] += `</span>`;
-        let roles = evt.arguments;
-        roles.sort(function(a,b){return a.argument.length-b.argument.length});
-        roles.forEach((arg, j) => {
-            evt_html_lst[arg.argument_start_index] = `<span class="argument" data-role="${arg.role}">`+evt_html_lst[arg.argument_start_index];
-            evt_html_lst[arg.argument_start_index+arg.argument.length-1] += `</span>`;
+    if (evts) {
+        evts.forEach((evt, i) => {
+            let evt_html_lst = text.split("");
+            evt_html_lst[evt.trigger_start_index] = `<span class="trigger">`+evt_html_lst[evt.trigger_start_index];
+            evt_html_lst[evt.trigger_start_index+evt.trigger.length-1] += `</span>`;
+            let roles = evt.arguments;
+            roles.sort(function(a,b){return a.argument.length-b.argument.length});
+            roles.forEach((arg, j) => {
+                evt_html_lst[arg.argument_start_index] = `<span class="argument" data-role="${arg.role}">`+evt_html_lst[arg.argument_start_index];
+                evt_html_lst[arg.argument_start_index+arg.argument.length-1] += `</span>`;
+            });
+            result.event_list[i].evt_html = evt_html_lst.join("");
+            result.event_list[i].hidden = false;
+            result.event_type_list.add(evt.event_type);
         });
-        result.event_list[i].evt_html = evt_html_lst.join("");
-        result.event_list[i].hidden = false;
-        result.event_type_list.add(evt.event_type);
-    });
+    }
+    if (!result.event_list[0]) {
+        result.event_list = [{event_type: "未填写", evt_html: result.text, hidden: false}];
+    } else {
+        console.log(result.event_list);
+    }
     return result;
 }
 
@@ -149,7 +202,7 @@ var the_vue = new Vue({
                 let hit_list = [];
                 for (let trigger_rule of this.trigger_rules) {
                     let thing = triggerCheck(zz.text, trigger_rule, zz.event_type_list);
-                    if (thing.situation=="命中"||thing.situation=="疑似"||thing.situation=="排除") {
+                    if (thing.situation=="找到"||thing.situation=="疑似"||thing.situation=="排除") {
                         hit_list.push(thing);
                     }
                 }
