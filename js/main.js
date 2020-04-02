@@ -144,7 +144,7 @@ function triggerCheck(str, trigger_rule, event_type_list) {
         result = {situation: rst[0]?situation:"无果", type: type, evidence: rst[0], rule: trigger_rule, ptn: ptn, corr_class: corr_class};
         let excepter_string = str.match(excepter)?str.match(excepter)[0]:"";
         if (excepter_string && (result.situation=="找到"||result.situation=="疑似")) {
-            corr_class = (event_type_list.has(type))?"corr corr-error":"corr corr-except";
+            result.corr_class = (event_type_list.has(type))?"corr corr-error":"corr corr-except";
             result.situation = result.situation+"后排除";
             result.evidence = result.evidence+"（但有「"+excepter_string+"」）";
             result.ptn = result.ptn+"（但有「"+excepter+"」）";
