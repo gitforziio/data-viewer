@@ -83,11 +83,11 @@ function triggerCheck(str, trigger_rule, event_type_list) {
         if (!excepter_string) {
             let ptn, situation, rst;
             if (cue_left && trigger) {
-                ptn = `(${cue_left})[^(${trigger})，。！？]*(${trigger})`;
+                ptn = `(${cue_left})[^(${trigger})，。！？：]*(${trigger})`;
                 situation = "命中";
                 corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
             } else if (trigger && cue_right) {
-                ptn = `(${trigger})[^(${cue_right})，。！？]*(${cue_right})`;
+                ptn = `(${trigger})[^(${cue_right})，。！？：]*(${cue_right})`;
                 situation = "命中";
                 corr_class = (event_type_list.has(type))?"corr corr-hit":"corr corr-error";
             } else if (trigger) {
